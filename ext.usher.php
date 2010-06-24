@@ -132,10 +132,12 @@ class Usher_ext {
 		
 		$group_settings = $this->_ee->usher_model->get_member_group_settings($member_data->group_id);
 		
-		if ($group_settings[$member_data->group_id]['redirect_on_login'] == 'y'
-			&& $group_settings[$member_data->group_id]['redirect_url'])
+		if ($group_settings[$member_data->group_id]['redirect_on_login'] == 'y')
 		{
-			$this->_ee->functions->redirect(BASE .AMP .$group_settings[$member_data->group_id]['redirect_url']);
+			$this->_ee->functions->redirect(BASE .AMP
+				.$this->_ee->usher_model->get_default_cp_path()
+				.$group_settings[$member_data->group_id]['redirect_url']
+			);
 		}
 	}
 	

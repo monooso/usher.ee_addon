@@ -188,7 +188,7 @@ class Usher_model extends CI_Model {
 	 */
 	public function get_default_cp_path()
 	{
-		return 'D=cp';
+		return 'D=cp' .AMP;
 	}
 	
 	

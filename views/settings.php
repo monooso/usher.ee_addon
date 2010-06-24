@@ -21,7 +21,7 @@ if ($member_group_settings):
 				$redirect_options,
 				$group_settings['redirect_on_login']
 			),
-			$default_cp_path .'&amp;&nbsp;'
+			$default_cp_path .'&nbsp;'
 			.form_input(array(
 				'id'		=> "member_groups[{$group_id}][redirect_url]",
 				'maxlength'	=> '128',
