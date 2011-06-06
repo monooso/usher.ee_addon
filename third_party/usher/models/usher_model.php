@@ -44,91 +44,6 @@ class Usher_model extends CI_Model {
 	
 	
 	/**
-	 * Activates the extension.
-	 *
-	 * @access	public
-	 * @return	void
-	 */
-	public function activate_extension()
-	{
-		$hooks = array(
-			array(
-				'hook'		=> 'cp_member_login',
-				'method'	=> 'cp_member_login',
-				'priority'	=> 10
-			)
-		);
-		
-		foreach ($hooks AS $hook)
-		{
-			$this->_ee->db->insert(
-				'extensions',
-				array(
-					'class'		=> $this->_extension_class,
-					'enabled'	=> 'y',
-					'hook'		=> $hook['hook'],
-					'method'	=> $hook['method'],
-					'priority'	=> $hook['priority'],
-					'version'	=> $this->_version
-				)
-			);
-		}
-		
-		// Create the settings table.
-		$fields = array(
-			'site_id' => array(
-				'constraint'	=> 8,
-				'null'			=> FALSE,
-				'type'			=> 'int',
-				'unsigned'		=> TRUE
-			),
-			'member_group_id' => array(
-				'constraint'	=> 4,
-				'null'			=> FALSE,
-				'type'			=> 'smallint',
-				'unsigned'		=> TRUE
-			),
-			'redirect_on_login' => array(
-				'constraint'	=> 1,
-				'default'		=> 'n',
-				'null'			=> FALSE,
-				'type'			=> 'char'
-			),
-			'redirect_url' => array(
-				'constraint'	=> '128',
-				'null'			=> TRUE,
-				'type'			=> 'varchar'
-			)
-		);
-		
-		$this->load->dbforge();
-		$this->_ee->dbforge->add_field($fields);
-		
-		// PRIMARY KEY `site_id_member_group_id` (`site_id`, `member_group_id`)
-		$this->_ee->dbforge->add_key('site_id', TRUE);
-		$this->_ee->dbforge->add_key('member_group_id', TRUE);
-		
-		$this->_ee->dbforge->create_table('usher_settings', TRUE);
-	}
-
-
-    /**
-     * Deinstalls the extension. So named to preserve consistency
-     * with the standard module deinstallation method.
-     *
-     * @access  public
-     * @return  void
-     */
-    public function deinstall_extension()
-    {
-        $this->_ee->load->dbforge();
-
-        $this->_ee->db->delete('extensions', array('class' => $this->_extension_class));
-        $this->_ee->dbforge->drop_table('usher_settings');
-    }
-	
-	
-	/**
 	 * Returns the member groups.
 	 *
 	 * @access	public
@@ -313,6 +228,22 @@ class Usher_model extends CI_Model {
     }
 
 
+    /**
+     * Uninstalls the extension. So named to preserve consistency
+     * with the standard module uninstallation method.
+     *
+     * @access  public
+     * @return  void
+     */
+    public function uninstall_extension()
+    {
+        $this->_ee->load->dbforge();
+
+        $this->_ee->db->delete('extensions', array('class' => $this->_extension_class));
+        $this->_ee->dbforge->drop_table('usher_settings');
+    }
+	
+	
     /**
      * Updates the extension.
      *

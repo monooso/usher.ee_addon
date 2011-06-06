@@ -41,7 +41,7 @@ class Test_usher_model extends Testee_unit_test_case {
     }
 
 
-    public function test__deinstall_extension__success()
+    public function test__uninstall_extension__success()
     {
         $class      = $this->_extension_class;
         $db         = $this->_ee->db;
@@ -50,7 +50,7 @@ class Test_usher_model extends Testee_unit_test_case {
         $db->expectOnce('delete', array('extensions', array('class' => $class)));
         $dbforge->expectOnce('drop_table', array('usher_settings'));
 
-        $this->_subject->deinstall_extension($class);
+        $this->_subject->uninstall_extension($class);
     }
 
 
