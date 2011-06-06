@@ -11,6 +11,7 @@ require_once PATH_THIRD .'usher/models/usher_model' .EXT;
 
 class Test_usher_model extends Testee_unit_test_case {
 
+    private $_extension_class;
     private $_package_name;
     private $_package_version;
     private $_site_id;
@@ -31,11 +32,25 @@ class Test_usher_model extends Testee_unit_test_case {
     {
         parent::setUp();
 
+        $this->_extension_class = 'Example_package_ext';
         $this->_package_name    = 'example_package';
         $this->_package_version = '1.0.0';
         $this->_site_id         = 10;
         $this->_ee->config->setReturnValue('item', $this->_site_id, array('site_id'));
         $this->_subject         = new Usher_model($this->_package_name, $this->_package_version);
+    }
+
+
+    public function test__deinstall_extension__success()
+    {
+        $class      = $this->_extension_class;
+        $db         = $this->_ee->db;
+        $dbforge    = $this->_ee->dbforge;
+
+        $db->expectOnce('delete', array('extensions', array('class' => $class)));
+        $dbforge->expectOnce('drop_table', array('usher_settings'));
+
+        $this->_subject->deinstall_extension($class);
     }
 
 
@@ -120,6 +135,53 @@ class Test_usher_model extends Testee_unit_test_case {
     }
 
 
+    public function test__install_extension__success()
+    {
+        $db         = $this->_ee->db;
+        $dbforge    = $this->_ee->dbforge;
+
+        // Register the extension.
+        $hook_data = array(
+            'class'     => $this->_extension_class,
+            'enabled'   => 'y',
+            'hook'      => 'cp_member_login',
+            'method'    => 'on_cp_member_login',
+            'priority'  => 5,
+            'settings'  => '',
+            'version'   => $this->_package_version
+        );
+
+        $db->expectOnce('insert', array('extensions', $hook_data));
+
+        // Create the settings table.
+        $table_fields = array(
+            'site_id' => array(
+                'constraint'    => 5,
+                'null'          => FALSE,
+                'type'          => 'int',
+                'unsigned'      => TRUE
+            ),
+            'group_id' => array(
+                'constraint'    => 4,
+                'null'          => FALSE,
+                'type'          => 'smallint',
+                'unsigned'      => TRUE
+            ),
+            'target_url' => array(
+                'constraint'    => 150,
+                'null'          => FALSE,
+                'type'          => 'varchar'
+            )
+        );
+
+        $dbforge->expectOnce('add_field', array($table_fields));
+        $dbforge->expectOnce('add_key', array(array('site_id', 'group_id')));
+        $dbforge->expectOnce('create_table', array('usher_settings', TRUE));
+    
+        $this->_subject->install_extension();
+    }
+
+
     public function test__save_package_settings__success()
     {
         $db = $this->_ee->db;
@@ -190,6 +252,51 @@ class Test_usher_model extends Testee_unit_test_case {
         $this->_ee->db->expectNever('insert');
 
         $this->_subject->save_package_settings($settings);
+    }
+
+
+    public function test__update_extension__latest_version_installed()
+    {
+        $installed_version  = '1.0.0';
+        $package_version    = '1.0.0';
+        $subject            = new Usher_model($this->_package_name, $package_version);
+
+        $this->assertIdentical(FALSE, $subject->update_extension($installed_version));
+    }
+
+
+    public function test__update_extension__newer_version_installed()
+    {
+        $installed_version  = '1.1.0';
+        $package_version    = '1.0.0';
+        $subject            = new Usher_model($this->_package_name, $package_version);
+
+        $this->assertIdentical(FALSE, $subject->update_extension($installed_version));
+    }
+
+
+    public function test__update_extension__not_installed()
+    {
+        $installed_version  = '';
+        $package_version    = '1.0.0';
+        $subject            = new Usher_model($this->_package_name, $package_version);
+
+        $this->assertIdentical(FALSE, $subject->update_extension($installed_version));
+    }
+
+
+    public function test__update_extension__update_required()
+    {
+        $installed_version  = '1.0.0';
+        $package_version    = '1.1.0';
+        $subject            = new Usher_model($this->_package_name, $package_version);
+    
+        // Update the extension version.
+        $update_data    = array('version' => $package_version);
+        $update_clause  = array('class' => $this->_extension_class);
+
+        $this->_ee->db->expectOnce('update', array('extensions', $update_data, $update_clause));
+        $subject->update_extension($installed_version);
     }
 
 }

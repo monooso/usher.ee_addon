@@ -13,6 +13,7 @@ require_once PATH_THIRD .'usher/classes/usher_member_group_settings' .EXT;
 class Usher_model extends CI_Model {
 	
 	private $_ee;
+    private $_extension_class;
 	private $_member_groups;
     private $_package_name;
     private $_package_settings;
@@ -38,6 +39,7 @@ class Usher_model extends CI_Model {
 		$this->_ee              =& get_instance();
         $this->_package_name    = $package_name ? strtolower($package_name) : 'usher';
         $this->_package_version = $package_version ? $package_version : '0.1.0';
+        $this->_extension_class = ucfirst($this->_package_name) .'_ext';
 	}
 	
 	
@@ -108,21 +110,22 @@ class Usher_model extends CI_Model {
 		
 		$this->_ee->dbforge->create_table('usher_settings', TRUE);
 	}
-	
-	
-	/**
-	 * Disables the extension.
-	 *
-	 * @access	public
-	 * @return	void
-	 */
-	public function disable_extension()
-	{
-		$this->_ee->db->delete('extensions', array('class' => $this->_extension_class));
-		
-		$this->load->dbforge();
-		$this->_ee->dbforge->drop_table('usher_settings');
-	}
+
+
+    /**
+     * Deinstalls the extension. So named to preserve consistency
+     * with the standard module deinstallation method.
+     *
+     * @access  public
+     * @return  void
+     */
+    public function deinstall_extension()
+    {
+        $this->_ee->load->dbforge();
+
+        $this->_ee->db->delete('extensions', array('class' => $this->_extension_class));
+        $this->_ee->dbforge->drop_table('usher_settings');
+    }
 	
 	
 	/**
@@ -216,6 +219,56 @@ class Usher_model extends CI_Model {
 
 
     /**
+     * Installs the extension. So named to preserve consistency with the
+     * standard module installation method.
+     *
+     * @access  public
+     * @return  void
+     */
+    public function install_extension()
+    {
+        // Register the extension hook.
+        $hook_data = array(
+            'class'     => $this->_extension_class,
+            'enabled'   => 'y',
+            'hook'      => 'cp_member_login',
+            'method'    => 'on_cp_member_login',
+            'priority'  => 5,
+            'settings'  => '',
+            'version'   => $this->get_package_version()
+        );
+
+        $this->_ee->db->insert('extensions', $hook_data);
+
+        // Create the settings table.
+        $this->_ee->load->dbforge();
+
+        $this->_ee->dbforge->add_field(array(
+            'site_id' => array(
+                'constraint'    => 5,
+                'null'          => FALSE,
+                'type'          => 'int',
+                'unsigned'      => TRUE
+            ),
+            'group_id' => array(
+                'constraint'    => 4,
+                'null'          => FALSE,
+                'type'          => 'smallint',
+                'unsigned'      => TRUE
+            ),
+            'target_url' => array(
+                'constraint'    => 150,
+                'null'          => FALSE,
+                'type'          => 'varchar'
+            )
+        ));
+
+        $this->_ee->dbforge->add_key(array('site_id', 'group_id'));
+        $this->_ee->dbforge->create_table('usher_settings', TRUE);
+    }
+
+
+    /**
      * Saves the specified settings to the database.
      *
      * @access  public
@@ -258,37 +311,32 @@ class Usher_model extends CI_Model {
             ));
         }
     }
+
+
+    /**
+     * Updates the extension.
+     *
+     * @access  public
+     * @param   string        $installed_version        The currently-installed version.
+     * @return  mixed
+     */
+    public function update_extension($installed_version = '')
+    {
+        if ( ! $installed_version
+            OR version_compare($installed_version, $this->get_package_version(), '>='))
+        {
+            return FALSE;
+        }
+
+        $this->_ee->db->update(
+            'extensions',
+            array('version' => $this->get_package_version()),
+            array('class'   => $this->_extension_class)
+        );
+    }
 	
 	
-	/**
-	 * Updates the extension.
-	 *
-	 * @access	public
-	 * @param 	string		$current_version		The current version.
-	 * @return	bool
-	 */
-	public function update_extension($current_version = '')
-	{
-		if ( ! $current_version OR $current_version == $this->_version)
-		{
-			return FALSE;
-		}
-		
-		// Update the version number.
-		if ($current_version < $this->_version)
-		{
-			$this->_ee->db->update(
-				'extensions',
-				array('version' => $this->_version),
-				array('class' => $this->_extension_class)
-			);
-		}
-		
-		return TRUE;
-	}
-	
-	
-	
+
 	/* --------------------------------------------------------------
 	 * PRIVATE METHODS
 	 * ------------------------------------------------------------ */
