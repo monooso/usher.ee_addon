@@ -3,66 +3,22 @@
 /**
  * Redirect members to a specific CP URL after login.
  *
- * @author		Stephen Lewis <addons@experienceinternet.co.uk>
- * @link 		http://github.com/experience/sl.usher.ee2_addon/
- * @package		Usher
- * @version		0.1.0
+ * @author		    Stephen Lewis (http://github.com/experience/)
+ * @package		    Usher
+ * @version		    0.1.0
  */
+
+require_once PATH_THIRD .'usher/classes/usher_member_group_settings' .EXT;
 
 class Usher_model extends CI_Model {
 	
-	/* --------------------------------------------------------------
-	 * PRIVATE PROPERTIES
-	 * ------------------------------------------------------------ */
-	
-	/**
-	 * ExpressionEngine object.
-	 *
-	 * @access	private
-	 * @var		object
-	 */
 	private $_ee;
-	
-	/**
-	 * The extension class name.
-	 *
-	 * @access	private
-	 * @var		string
-	 */
-	private $_extension_class = 'Usher_ext';
-	
-	/**
-	 * The extension version.
-	 *
-	 * @access	private
-	 * @var		string
-	 */
-	private $_version = '0.1.0';
-	
-	/**
-	 * Member groups.
-	 *
-	 * @access	private
-	 * @var		array
-	 */
-	private $_member_groups = array();
-	
-	/**
-	 * The extension settings.
-	 *
-	 * @access	private
-	 * @var		array
-	 */
-	private $_settings = array();
-	
-	/**
-	 * The site ID.
-	 *
-	 * @access	private
-	 * @var		string
-	 */
-	private $_site_id = '1';
-	
+	private $_member_groups;
+    private $_package_name;
+    private $_package_settings;
+    private $_package_version;
+    private $_settings;
+    private $_site_id;
 	
 	
 	/* --------------------------------------------------------------
@@ -73,26 +29,15 @@ class Usher_model extends CI_Model {
 	 * Class constructor.
 	 *
 	 * @access	public
+     * @param   string      $package_name       Package name. Used for testing.
+     * @param   string      $package_version    Package versio. Used for testing.
 	 * @return	void
 	 */
-	public function __construct()
+	public function __construct($package_name = '', $package_version = '')
 	{
-		$this->_ee =& get_instance();
-		$this->_site_id = $this->_ee->config->item('site_id');
-		
-		/**
-		 * Annoyingly, this method is still called, even if the extension
-		 * isn't installed. We need to check if such nonsense is afoot,
-		 * and exit promptly if so.
-		 */
-		
-		if ( ! isset($this->_ee->extensions->version_numbers[$this->_extension_class]))
-		{
-			return;
-		}
-		
-		// Load the settings.
-		$this->_load_settings_from_db();
+		$this->_ee              =& get_instance();
+        $this->_package_name    = $package_name ? strtolower($package_name) : 'usher';
+        $this->_package_version = $package_version ? $package_version : '0.1.0';
 	}
 	
 	
@@ -181,18 +126,6 @@ class Usher_model extends CI_Model {
 	
 	
 	/**
-	 * Returns the default CP path (the CP homepage).
-	 *
-	 * @access	public
-	 * @return	string
-	 */
-	public function get_default_cp_path()
-	{
-		return 'D=cp' .AMP;
-	}
-	
-	
-	/**
 	 * Returns the member groups.
 	 *
 	 * @access	public
@@ -209,92 +142,122 @@ class Usher_model extends CI_Model {
 	}
 	
 	
-	/**
-	 * Returns the member group settings.
-	 *
-	 * @access	public
-	 * @param	string		$member_group_id		An optional member group ID.
-	 * @return	array
-	 */
-	public function get_member_group_settings($member_group_id = '')
-	{
-		$return 			= array();
-		$member_groups 		= $this->get_member_groups();
-		$default_settings	= $this->_get_default_member_group_settings();
-		
-		/**
-		 * If a non-existent member group has been specified,
-		 * just return the default settings.
-		 */
-		
-		if ($member_group_id && ! in_array($member_group_id, array_keys($member_groups)))
-		{
-			return array($member_group_id => array_merge($default_settings, array('member_group_id' => $member_group_id)));
-		}
-		
-		/**
-		 * Loop through the member groups.
-		 */
-		
-		foreach ($member_groups AS $group_id => $group_title)
-		{
-			if ( ! $member_group_id OR ($member_group_id == $group_id))
-			{
-				$return[$group_id] = isset($this->_settings[$group_id])
-					? array_merge($default_settings, $this->_settings[$group_id])
-					: $default_settings;
-			}
-		}
-		
-		return $return;
-	}
-	
-	
-	/**
-	 * Returns the site settings.
-	 *
-	 * @access	public
-	 * @return	array
-	 */
-	public function get_settings()
-	{
-		return $this->_settings;
-	}
-	
-	
-	/**
-	 * Returns the extension version.
-	 *
-	 * @access	public
-	 * @return	string
-	 */
-	public function get_version()
-	{
-		return $this->_version;
-	}
-	
-	
-	/**
-	 * Saves the site settings.
-	 *
-	 * @access	public
-	 * @return	bool
-	 */
-	public function save_settings()
-	{
-		$this->_update_settings_from_input();
-		
-		// Delete the existing site settings.
-		$this->_ee->db->delete('usher_settings', array('site_id' => $this->_site_id));
-		
-		foreach ($this->_settings AS $group_id => $group_settings)
-		{
-			$temp_settings = array_merge(array('site_id' => $this->_site_id), $group_settings);
-			$this->_ee->db->insert('usher_settings', $temp_settings);
-		}
-		
-		return TRUE;
-	}
+    /**
+     * Returns the package name.
+     *
+     * @access  public
+     * @return  string
+     */
+    public function get_package_name()
+    {
+        return $this->_package_name;
+    }
+
+
+    /**
+     * Returns the package settings.
+     *
+     * @access  public
+     * @return  array
+     */
+    public function get_package_settings()
+    {
+        if ( ! $this->_package_settings)
+        {
+            $settings = array();
+
+            $db_result = $this->_ee->db->select('group_id, target_url')
+                ->get_where('usher_settings', array('site_id' => $this->get_site_id()));
+
+            if ( ! $db_result->num_rows())
+            {
+                return $settings;
+            }
+
+            foreach ($db_result->result_array() AS $db_row)
+            {
+                $settings[] = new Usher_member_group_settings($db_row);
+            }
+
+            $this->_package_settings = $settings;
+        }
+
+        return $this->_package_settings;
+    }
+
+
+    /**
+     * Returns the package version.
+     *
+     * @access  public
+     * @return  string
+     */
+    public function get_package_version()
+    {
+        return $this->_package_version;
+    }
+
+
+    /**
+     * Returns the site ID.
+     *
+     * @access    public
+     * @return    int
+     */
+    public function get_site_id()
+    {
+        if ( ! $this->_site_id)
+        {
+            $this->_site_id = intval($this->_ee->config->item('site_id'));
+        }
+
+        return $this->_site_id;
+    }
+
+
+    /**
+     * Saves the specified settings to the database.
+     *
+     * @access  public
+     * @param   array       $settings       An array of Usher_member_group_settings objects.
+     * @return  void
+     */
+    public function save_package_settings(Array $settings = array())
+    {
+        // Validate the settings.
+        foreach ($settings AS $group_settings)
+        {
+            if ( ! $group_settings instanceof Usher_member_group_settings)
+            {
+                throw new Exception($this->_ee->lang->line('exception__save_package_settings__invalid_datatype'));
+            }
+        }
+
+        // Delete the existing site settings.
+        $this->_ee->db->delete('usher_settings', array('site_id' => $this->get_site_id()));
+
+        // Get out early.
+        if ( ! $settings)
+        {
+            return;
+        }
+
+        // Save the new site settings.
+        $base_insert_data = array('site_id' => $this->get_site_id());
+
+        foreach ($settings AS $group_settings)
+        {
+            if ( ! $group_settings->get_group_id() OR ! $group_settings->get_target_url())
+            {
+                continue;
+            }
+
+            $this->_ee->db->insert('usher_settings', array_merge(
+                $base_insert_data,
+                $group_settings->to_array()
+            ));
+        }
+    }
 	
 	
 	/**
@@ -331,23 +294,6 @@ class Usher_model extends CI_Model {
 	 * ------------------------------------------------------------ */
 	
 	/**
-	 * Returns the default member group settings.
-	 *
-	 * @access	private
-	 * @return	array
-	 */
-	private function _get_default_member_group_settings()
-	{
-		return array(
-			'site_id'			=> $this->_site_id,
-			'member_group_id'	=> '',
-			'redirect_on_login'	=> 'n',
-			'redirect_url'		=> ''
-		);
-	}
-	
-	
-	/**
 	 * Loads the member groups from the database.
 	 *
 	 * @access	private
@@ -370,36 +316,6 @@ class Usher_model extends CI_Model {
 		}
 		
 		$this->_member_groups = $member_groups;
-	}
-	
-	
-	/**
-	 * Loads the settings from the database.
-	 *
-	 * @access	private
-	 * @return	void
-	 */
-	private function _load_settings_from_db()
-	{
-		$settings = array();
-		
-		// Load the settings from the database.
-		$db_settings = $this->_ee->db->get_where('usher_settings', array('site_id' => $this->_site_id));
-		
-		// If we have saved settings, parse them.
-		if ($db_settings->num_rows() > 0)
-		{
-			$this->_ee->load->helper('string');
-			
-			$default_settings = $this->_get_default_member_group_settings();
-
-			foreach ($db_settings->result_array() AS $db_row)
-			{
-				$settings[$db_row['member_group_id']] = array_merge($default_settings, $db_row);
-			}
-		}
-		
-		$this->_settings = $settings;
 	}
 	
 	
