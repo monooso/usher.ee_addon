@@ -41,18 +41,58 @@ class Test_usher_model extends Testee_unit_test_case {
     }
 
 
-    public function test__uninstall_extension__success()
+    public function test__get_admin_member_groups__success()
     {
-        $class      = $this->_extension_class;
-        $db         = $this->_ee->db;
-        $dbforge    = $this->_ee->dbforge;
+        $db_result  = $this->_get_mock('db_query');
+        $db_rows    = array(
+            array('group_id' => '10', 'group_title' => 'SuperAdmins'),
+            array('group_id' => '20', 'group_title' => 'Editors'),
+            array('group_id' => '30', 'group_title' => 'Authors')
+        );
 
-        $db->expectOnce('delete', array('extensions', array('class' => $class)));
-        $dbforge->expectOnce('drop_table', array('usher_settings'));
+        // The database should only be queried once, regardless of
+        // how many times we call this method.
+        $this->_ee->db->expectOnce('select', array('group_id, group_title'));
+        $this->_ee->db->expectOnce('get_where', array('member_groups', array('can_access_cp' => 'y')));
+        $this->_ee->db->setReturnReference('get_where', $db_result);
 
-        $this->_subject->uninstall_extension($class);
+        $db_result->expectOnce('num_rows');
+        $db_result->expectOnce('result_array');
+        $db_result->setReturnValue('num_rows', count($db_rows));
+        $db_result->setReturnValue('result_array', $db_rows);
+
+        $expected_result = array();
+        foreach ($db_rows AS $db_row)
+        {
+            $expected_result[] = new EI_member_group($db_row);
+        }
+
+        $actual_result = $this->_subject->get_admin_member_groups();
+
+        $this->assertIdentical(count($expected_result), count($actual_result));
+        for ($count = 0; $count < count($expected_result); $count++)
+        {
+            $this->assertIdentical($expected_result[$count], $actual_result[$count]);
+        }
+
+        // Test that the database isn't queried again.
+        $this->_subject->get_admin_member_groups();
     }
 
+
+    public function test__get_admin_member_groups__no_member_groups()
+    {
+        $db_result = $this->_get_mock('db_query');
+
+        $this->_ee->db->setReturnReference('get_where', $db_result);
+
+        $db_result->expectOnce('num_rows');
+        $db_result->expectNever('result_array');
+
+        $db_result->setReturnValue('num_rows', 0);
+    
+        $this->assertIdentical(array(), $this->_subject->get_admin_member_groups());
+    }
 
     public function test__get_package_name__success()
     {
@@ -298,6 +338,20 @@ class Test_usher_model extends Testee_unit_test_case {
         $this->_ee->db->expectOnce('update', array('extensions', $update_data, $update_clause));
         $subject->update_extension($installed_version);
     }
+
+
+    public function test__uninstall_extension__success()
+    {
+        $class      = $this->_extension_class;
+        $db         = $this->_ee->db;
+        $dbforge    = $this->_ee->dbforge;
+
+        $db->expectOnce('delete', array('extensions', array('class' => $class)));
+        $dbforge->expectOnce('drop_table', array('usher_settings'));
+
+        $this->_subject->uninstall_extension($class);
+    }
+
 
 }
 

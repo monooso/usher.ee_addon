@@ -8,17 +8,17 @@
  * @version		    0.1.0
  */
 
+require_once PATH_THIRD .'usher/classes/EI_member_group' .EXT;
 require_once PATH_THIRD .'usher/classes/usher_member_group_settings' .EXT;
 
 class Usher_model extends CI_Model {
 	
+    private $_admin_member_groups;
 	private $_ee;
     private $_extension_class;
-	private $_member_groups;
     private $_package_name;
     private $_package_settings;
     private $_package_version;
-    private $_settings;
     private $_site_id;
 	
 	
@@ -44,19 +44,34 @@ class Usher_model extends CI_Model {
 	
 	
 	/**
-	 * Returns the member groups.
+	 * Returns the admin member groups.
 	 *
 	 * @access	public
 	 * @return	array
 	 */
-	public function get_member_groups()
+	public function get_admin_member_groups()
 	{
-		if ( ! $this->_member_groups)
-		{
-			$this->_load_member_groups_from_db();
-		}
-		
-		return $this->_member_groups;
+        if ( ! is_array($this->_admin_member_groups))
+        {
+            $groups = array();
+
+            $db_result = $this->_ee->db->select('group_id, group_title')
+                ->get_where('member_groups', array('can_access_cp' => 'y'));
+
+            if ( ! $db_result->num_rows())
+            {
+                return $groups;
+            }
+
+            foreach ($db_result->result_array() AS $db_row)
+            {
+                $groups[] = new EI_member_group($db_row);
+            }
+
+            $this->_admin_member_groups = $groups;
+        }
+
+        return $this->_admin_member_groups;
 	}
 	
 	
@@ -271,32 +286,6 @@ class Usher_model extends CI_Model {
 	/* --------------------------------------------------------------
 	 * PRIVATE METHODS
 	 * ------------------------------------------------------------ */
-	
-	/**
-	 * Loads the member groups from the database.
-	 *
-	 * @access	private
-	 * @return	array
-	 */
-	private function _load_member_groups_from_db()
-	{
-		$member_groups = array();
-		
-		$db_groups = $this->_ee->db
-			->select('group_id, group_title')
-			->get_where('member_groups', array('can_access_cp' => 'y', 'site_id' => $this->_site_id));
-		
-		if ($db_groups->num_rows() > 0)
-		{
-			foreach ($db_groups->result() AS $db_group)
-			{
-				$member_groups[$db_group->group_id] = $db_group->group_title;
-			}
-		}
-		
-		$this->_member_groups = $member_groups;
-	}
-	
 	
 	/**
 	 * Updates the settings from the input.
