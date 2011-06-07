@@ -413,5 +413,6 @@ class Test_usher_model extends Testee_unit_test_case {
 
 }
 
+
 /* End of file      : test.usher_model.php */
 /* File location    : third_party/usher/tests/test.usher_model.php */
