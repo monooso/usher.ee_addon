@@ -217,6 +217,30 @@ class Test_usher_model extends Testee_unit_test_case {
     }
 
 
+	public function test__get_package_theme_url__end_slash_exists()
+	{
+		$config_theme_url	= 'http://example.com/themes/';
+		$return_theme_url	= 'http://example.com/themes/third_party/' .$this->_package_name .'/';
+		
+		$this->_ee->config->expectOnce('item', array('theme_folder_url'));
+		$this->_ee->config->setReturnValue('item', $config_theme_url, array('theme_folder_url'));
+
+		$this->assertIdentical($return_theme_url, $this->_subject->get_package_theme_url());
+	}
+		
+
+	public function test__get_package_theme_url__no_end_slash_exists()
+	{
+		$config_theme_url	= 'http://example.com/themes';
+		$return_theme_url	= 'http://example.com/themes/third_party/' .$this->_package_name .'/';
+		
+		$this->_ee->config->expectOnce('item', array('theme_folder_url'));
+		$this->_ee->config->setReturnValue('item', $config_theme_url, array('theme_folder_url'));
+
+		$this->assertIdentical($return_theme_url, $this->_subject->get_package_theme_url());
+	}
+		
+
     public function test__get_package_version__success()
     {
         $this->assertIdentical($this->_package_version, $this->_subject->get_package_version());

@@ -11,12 +11,12 @@ class Usher_ext {
 	
     private $_ee;
 
-	public $description = 'Redirect members to a specific CP URL after login.';
-	public $docs_url = 'http://github.com/experience/sl.usher.ee2_addon/';
-	public $name = 'Usher';
-	public $settings = array();
-	public $settings_exist = 'y';
-	public $version = '';
+	public $description;
+	public $docs_url;
+	public $name;
+	public $settings;
+	public $settings_exist;
+	public $version;
 	
 	
 	/* --------------------------------------------------------------
@@ -33,11 +33,17 @@ class Usher_ext {
 	public function __construct(Array $settings = array())
 	{
 		$this->_ee =& get_instance();
-		
 		$this->_ee->load->add_package_path(PATH_THIRD .'usher/');
 		$this->_ee->load->model('usher_model');
-		
-		$this->version = $this->_ee->usher_model->get_package_version();
+        $this->_ee->lang->loadfile($this->_ee->usher_model->get_package_name());
+
+        // Required extension properties.
+        $this->description      = $this->_ee->lang->line('extension_description');
+        $this->docs_url         = 'http://experienceinternet.co.uk/software/usher/docs/';
+        $this->name             = $this->_ee->lang->line('extension_name');
+        $this->settings         = array();      // Never used.
+        $this->settings_exist   = 'y';
+        $this->version          = $this->_ee->usher_model->get_package_version();
 	}
 	
 	
@@ -125,27 +131,42 @@ class Usher_ext {
 	 */
 	public function settings_form()
 	{
-        /*
-		// Load our glamorous assistants.
+        // Load our glamourous assistants.
 		$this->_ee->load->helper('form');
 		$this->_ee->load->library('table');
+
+        $theme_url = $this->_ee->usher_model->get_package_theme_url();
+
+		$this->_ee->cp->add_to_foot('<script type="text/javascript" src="' .$theme_url.'js/libs/jquery.roland.js"></script>');
+		$this->_ee->cp->add_to_foot('<script type="text/javascript" src="' .$theme_url .'js/cp.js"></script>');
+		$this->_ee->javascript->compile();
+
+		$this->_ee->cp->add_to_head('<link rel="stylesheet" type="text/css" href="' .$theme_url .'css/cp.css" />');
+
+        // Construct the member groups drop-down options.
+        $admin_member_groups = $this->_ee->usher_model->get_admin_member_groups();
+        $groups_dd = array();
+
+        foreach ($admin_member_groups AS $member_group)
+        {
+            $groups_dd[$member_group->get_group_id()] = $member_group->get_group_title();
+        }
+
+        // View variables.
+		$vars = array(
+			'form_action'		=> 'C=addons_extensions' .AMP .'M=save_extension_settings' .AMP .'file=' .$this->_ee->usher_model->get_package_name(),
+			'cp_page_title'		=> $this->_ee->lang->line('hd_settings'),
+            'groups_dd'         => $groups_dd,
+            'settings'          => $this->_ee->usher_model->get_package_settings(),
+            'theme_url'         => $theme_url
+		);
 		
-		$default_cp_path = $this->_ee->usher_model->get_default_cp_path();
+		return $this->_ee->load->view('settings', $vars, TRUE);
 		
 		// Collate the view variables.
 		$vars = array(
-			'action_url' 			=> 'C=addons_extensions' .AMP .'M=save_extension_settings',
-			'cp_page_title'			=> $this->_ee->lang->line('extension_name'),
-			'default_cp_path'		=> $default_cp_path,
 			'hidden_fields'			=> array('file' => strtolower(substr(get_class($this), 0, -4))),
-			'member_groups'			=> $this->_ee->usher_model->get_member_groups(),
-			'member_group_settings'	=> $this->_ee->usher_model->get_member_group_settings(),
-			'redirect_options'		=> array('n' => $this->_ee->lang->line('no'), 'y' => $this->_ee->lang->line('yes'))
 		);
-		
-		// Load the view.
-		return $this->_ee->load->view('settings', $vars, TRUE);
-         */
 	}
 	
 	

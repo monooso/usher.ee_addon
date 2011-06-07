@@ -129,7 +129,7 @@ class Usher_model extends CI_Model {
     {
         $settings = array();
 
-        if ( ! $input_settings = $this->_ee->input->post('usher_redirects', TRUE))
+        if ( ! $input_settings = $this->_ee->input->post('usher_settings', TRUE))
         {
             return $settings;
         }
@@ -147,6 +147,23 @@ class Usher_model extends CI_Model {
         }
 
         return $settings;
+    }
+
+
+    /**
+     * Returns the package theme URL.
+     *
+     * @access  public
+     * @return  string
+     */
+    public function get_package_theme_url()
+    {
+		$theme_url = $this->_ee->config->item('theme_folder_url');
+		$theme_url .= substr($theme_url, -1) == '/'
+			? 'third_party/'
+			: '/third_party/';
+
+		return $theme_url .$this->get_package_name() .'/';
     }
 	
 	

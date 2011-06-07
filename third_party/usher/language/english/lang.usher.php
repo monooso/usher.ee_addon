@@ -18,15 +18,10 @@ $lang = array(
 /* --------------------------------------------------------------
  * SETTINGS
  * ------------------------------------------------------------ */
-'save_settings'			=> 'Save Settings',
+'hd_settings'           => 'Usher',
+'lbl_save_settings'		=> 'Save Settings',
 'thd_member_group'		=> 'Member Group',
-'thd_redirect_url'		=> 'Control Panel URL',
-'no'					=> 'No',
-'redirect_to_none'		=> 'Do not redirect',
-'redirect_to_home'		=> 'Control Panel homepage',
-'redirect_to_custom'	=> 'Custom URL',
-'unknown_member_group'	=> 'Unknown member group: ',
-'yes'					=> 'Yes',
+'thd_target_url'		=> 'Target URL',
 
 /* --------------------------------------------------------------
  * EXCEPTIONS

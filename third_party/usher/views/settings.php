@@ -1,49 +1,48 @@
-<?php
+<?=form_open($form_action); ?>
+<div id="usher">
 
-echo form_open($action_url, '', $hidden_fields);
+<table class="mainTable padTable" cellpadding="0" cellspacing="0">
+	<thead>
+		<tr>
+			<th width="30%"><?=lang('thd_member_group'); ?></th>
+			<th><?=lang('thd_target_url'); ?></th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
 
-$this->table->set_template($cp_pad_table_template);
+	<tbody class="roland">
+	<?php
+		if ( ! $settings):
+	?>
+		<tr class="row">
+            <td><?=form_dropdown('usher_settings[0][group_id]', $groups_dd); ?></td>
+			<td><input type="text" name="usher_settings[0][target_url]"></td>
+			<td class="act">
+                <a class="remove_row btn" href="#"><img height="17" src="<?=$theme_url; ?>img/minus.png" width="16"></a>
+                <a class="add_row btn" href="#"><img height="17" src="<?=$theme_url; ?>img/plus.png" width="16"></a>
+			</td>
+		</tr>
+	<?php
+		else:
+		foreach ($settings AS $group_settings):
+	?>
+		<tr class="row">
+            <td><?=form_dropdown('usher_settings[0][group_id]', $groups_dd, $group_settings->get_group_id()); ?></td>
+			<td><input type="text" name="usher_settings[0][target_url]" value="<?=$group_settings->get_target_url(); ?>"></td>
+			<td class="act">
+				<a class="remove_row btn" href="#"><img height="17" src="/themes/third_party/usher/img/minus.png" width="16"></a>
+				<a class="add_row btn" href="#"><img height="17" src="/themes/third_party/usher/img/plus.png" width="16"></a>
+			</td>
+		</tr>
+	<?php
+		endforeach;
+		endif;
+	?>
+	</tbody>
+</table>
 
-$this->table->set_heading(
-	lang('thd_member_group'),
-	lang('thd_redirect_on_login'),
-	lang('thd_redirect_url')
-);
+</div><!-- /#usher -->
 
-if ($member_group_settings):
+<div class="submit_wrapper"><?=form_submit(array('name' => 'submit', 'value' => lang('lbl_save_settings'), 'class' => 'submit')); ?></div>
 
-	foreach ($member_group_settings AS $group_id => $group_settings)
-	{
-		$this->table->add_row(array(
-			$member_groups[$group_id] ? $member_groups[$group_id] : lang('unknown_member_group') .$group_id,
-			form_dropdown(
-				"member_groups[{$group_id}][redirect_on_login]",
-				$redirect_options,
-				$group_settings['redirect_on_login']
-			),
-			$default_cp_path .'&nbsp;'
-			.form_input(array(
-				'id'		=> "member_groups[{$group_id}][redirect_url]",
-				'maxlength'	=> '128',
-				'name'		=> "member_groups[{$group_id}][redirect_url]",
-				'style'		=> 'width : 75%',
-				'value'		=> $group_settings['redirect_url']
-			))
-		));
-	}
-
-else:
-
-	$this->table->add_row(array('colspan' => '3', 'data' => lang('no_member_groups')));
-
-endif;
-
-echo $this->table->generate();
-$this->table->clear();
-
-?>
-
-<!-- Submit Button -->
-<div class="tableFooter"><div class="tableSubmit">
-<?=form_submit(array('name' => 'submit', 'value' => lang('save_settings'), 'class' => 'submit')); ?>
-</div></div>
+<?=form_close(); ?>
