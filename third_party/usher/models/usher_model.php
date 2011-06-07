@@ -312,7 +312,6 @@ class Usher_model extends CI_Model {
         );
     }
 
-
 }
 
 /* End of file		: usher_model.php */
