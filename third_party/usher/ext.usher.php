@@ -102,20 +102,18 @@ class Usher_ext {
 	 */
 	public function save_settings()
 	{
-        /*
-		// Need to explicitly load the language file.
-		$this->_ee->lang->loadfile('usher');
-		
-		// Save the settings.
-		if ($this->_ee->usher_model->save_settings())
-		{
-			$this->_ee->session->set_flashdata('message_success', $this->_ee->lang->line('settings_saved'));
-		}
-		else
-		{
-			$this->_ee->session->set_flashdata('message_failure', $this->_ee->lang->line('settings_not_saved'));
-		}
-         */
+        try
+        {
+            $this->_ee->usher_model->save_package_settings(
+                $this->_ee->usher_model->get_package_settings_from_post_data()
+            );
+
+            $this->_ee->session->set_flashdata('message_success', $this->_ee->lang->line('flashdata__settings_saved'));
+        }
+        catch (Exception $e)
+        {
+            $this->_ee->session->set_flashdata('message_failure', $this->_ee->lang->line('flashdata__settings_not_saved'));
+        }
 	}
 	
 	

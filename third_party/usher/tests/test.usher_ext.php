@@ -63,6 +63,46 @@ class Test_usher_ext extends Testee_unit_test_case {
     }
 
 
+    public function test__save_settings__success()
+    {
+        // Retrieve the settings from the POST data.
+        $settings = array(
+            new Usher_member_group_settings(array('group_id' => '10', 'target_url' => 'a')),
+            new Usher_member_group_settings(array('group_id' => '20', 'target_url' => 'b')),
+            new Usher_member_group_settings(array('group_id' => '30', 'target_url' => 'c'))
+        );
+
+        $this->_model->expectOnce('get_package_settings_from_post_data');
+        $this->_model->setReturnValue('get_package_settings_from_post_data', $settings);
+
+        // Save the settings to the database.
+        $this->_model->expectOnce('save_package_settings', array($settings));
+
+        // Set the flashdata.
+        $message = 'Success!';
+        $this->_ee->lang->setReturnValue('line', $message);
+        $this->_ee->session->expectOnce('set_flashdata', array('message_success', $message));
+    
+        $this->_subject->save_settings();
+    }
+
+
+    public function test__save_settings__exception()
+    {
+        $this->_model->expectOnce('get_package_settings_from_post_data');
+        $this->_model->setReturnValue('get_package_settings_from_post_data', array());  // Doesn't matter.
+
+        $this->_model->expectOnce('save_package_settings');
+        $this->_model->throwOn('save_package_settings', new Exception('Disaster!'));
+    
+        $message = 'Oh noes!';
+        $this->_ee->lang->setReturnValue('line', $message);
+        $this->_ee->session->expectOnce('set_flashdata', array('message_failure', $message));
+    
+        $this->_subject->save_settings();
+    }
+
+
     public function test__update_extension__success()
     {
         $installed_version  = '1.0.0';
