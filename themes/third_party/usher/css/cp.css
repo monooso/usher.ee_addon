@@ -1,0 +1,57 @@
+/**
+ * Usher control panel styles.
+ *
+ * @author			Stephen Lewis (http://github.com/experience/)
+ * @copyright		Experience Internet
+ * @package			Usher
+ */
+
+@media screen {
+
+/* =forms
+ * ------------------------------------------------------------ */
+#usher input[type='text'] {
+    width               : 75%;
+}
+
+#usher .field_prefix {
+    color               : rgb(153, 153, 153);
+    text-shadow         : 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+
+/* =tables
+ * ------------------------------------------------------------ */
+#usher td {
+    white-space         : nowrap;
+}
+
+
+/* =act
+ * ------------------------------------------------------------ */
+#usher .act {
+	padding-right		: 7px;
+	text-align			: right;
+	white-space			: nowrap;
+	width				: 44px;
+}
+
+
+/* =btn
+ * ------------------------------------------------------------ */
+#usher .btn {
+	display				: inline-block;
+	margin-right		: 3px;
+	vertical-align		: middle;
+}
+
+#usher .btn img {
+	display				: inline-block;
+	vertical-align		: middle;
+}
+
+
+} /* @media screen */
+
+/* End of file		: cp.css */
+/* File location	: themes/third_party/usher/css/cp.css */
