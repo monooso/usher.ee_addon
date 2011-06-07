@@ -1,12 +1,10 @@
 <?php
 
 /**
- * Redirect members to a specific CP URL after login.
+ * English language strings.
  *
- * @author		Stephen Lewis <addons@experienceinternet.co.uk>
- * @link 		http://github.com/experience/sl.usher.ee2_addon/
+ * @author		Stephen Lewis (http://github.com/experience/)
  * @package		Usher
- * @version		0.1.0
  */
 
 $lang = array(
@@ -21,10 +19,7 @@ $lang = array(
  * SETTINGS
  * ------------------------------------------------------------ */
 'save_settings'			=> 'Save Settings',
-'settings_not_saved' 	=> 'Unable to save settings.',
-'settings_saved'		=> 'Settings saved.',
 'thd_member_group'		=> 'Member Group',
-'thd_redirect_on_login'	=> 'Redirect on Login?',
 'thd_redirect_url'		=> 'Control Panel URL',
 'no'					=> 'No',
 'redirect_to_none'		=> 'Do not redirect',
@@ -32,6 +27,17 @@ $lang = array(
 'redirect_to_custom'	=> 'Custom URL',
 'unknown_member_group'	=> 'Unknown member group: ',
 'yes'					=> 'Yes',
+
+/* --------------------------------------------------------------
+ * EXCEPTIONS
+ * ------------------------------------------------------------ */
+'exception__save_package_settings__invalid_datatype'    => 'An invalid datatype was passed to Usher_model::save_package_settings',
+
+/* --------------------------------------------------------------
+ * FLASHDATA
+ * ------------------------------------------------------------ */
+'flashdata__settings_saved'     => 'Settings saved.',
+'flashdata__settings_not_saved' => 'Unable to save settings.',
 
 
 // All done.
@@ -41,4 +47,4 @@ $lang = array(
 
 
 /* End of file		: lang.usher.php */
-/* File location	: /system/expressionengine/third_party/mailchimp_subscribe/language/english/lang.usher.php */
+/* File location	: third_party/usher/language/english/lang.usher.php */
