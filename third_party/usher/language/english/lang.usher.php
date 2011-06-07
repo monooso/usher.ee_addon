@@ -3,8 +3,9 @@
 /**
  * English language strings.
  *
- * @author		Stephen Lewis (http://github.com/experience/)
- * @package		Usher
+ * @author		    Stephen Lewis (http://github.com/experience/)
+ * @copyright       Experience Internet
+ * @package		    Usher
  */
 
 $lang = array(
@@ -19,7 +20,6 @@ $lang = array(
  * SETTINGS
  * ------------------------------------------------------------ */
 'hd_settings'           => 'Usher',
-'info_settings'         => '<p>The target URL must include everything after <code>&amp;D=cp&amp;</code>.</p>',
 'lbl_save_settings'		=> 'Save Settings',
 'thd_member_group'		=> 'Member Group',
 'thd_target_url'		=> 'Target URL',

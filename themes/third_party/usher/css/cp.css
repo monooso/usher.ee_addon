@@ -51,16 +51,6 @@
 }
 
 
-/* =info
- * ------------------------------------------------------------ */
-#usher .info {
-    background          : rgb(255, 251, 195);
-    border              : 1px solid rgba(0, 0, 0, 0.15);
-    margin-bottom       : 20px;
-    padding             : 10px;
-    text-shadow         : 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
 } /* @media screen */
 
 /* End of file		: cp.css */

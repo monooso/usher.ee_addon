@@ -1,10 +1,6 @@
 <?=form_open($form_action); ?>
 <div id="usher">
 
-<div class="info">
-    <?=lang('info_settings'); ?>
-</div>
-
 <table class="mainTable padTable" cellpadding="0" cellspacing="0">
 	<thead>
 		<tr>
