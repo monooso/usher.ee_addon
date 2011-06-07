@@ -72,31 +72,23 @@ class Usher_ext {
 	
 	
 	/**
-	 * Handlers to cp_member_login hook.
+	 * Handles the cp_member_login hook.
 	 *
-	 * @see		http://expressionengine.com/public_beta/docs/development/extension_hooks/cp/login/index.html#cp_member_login
+	 * @see		http://expressionengine.com/user_guide/development/extension_hooks/cp/login/index.html#cp_member_login
 	 * @access	public
 	 * @param	object 		$member_data	Member data.
 	 * @return	void
 	 */
 	public function on_cp_member_login(StdClass $member_data)
 	{
-        /*
-		if ( ! $member_data->group_id)
-		{
-			return;
-		}
-		
-		$group_settings = $this->_ee->usher_model->get_member_group_settings($member_data->group_id);
-		
-		if ($group_settings[$member_data->group_id]['redirect_on_login'] == 'y')
-		{
-			$this->_ee->functions->redirect(BASE .AMP
-				.$this->_ee->usher_model->get_default_cp_path()
-				.$group_settings[$member_data->group_id]['redirect_url']
-			);
-		}
-         */
+        if ( ! isset($member_data->group_id)
+            OR ! $group_settings = $this->_ee->usher_model->get_member_group_settings($member_data->group_id))
+        {
+            return;
+        }
+
+        $target_url = $this->_ee->usher_model->build_cp_url($group_settings->get_target_url());
+        $this->_ee->functions->redirect($target_url);
 	}
 	
 	
@@ -160,7 +152,7 @@ class Usher_ext {
             'settings'          => $this->_ee->usher_model->get_package_settings(),
             'theme_url'         => $theme_url
 		);
-		
+
 		return $this->_ee->load->view('settings', $vars, TRUE);
 		
 		// Collate the view variables.

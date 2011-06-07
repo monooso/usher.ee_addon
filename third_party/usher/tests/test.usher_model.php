@@ -41,6 +41,23 @@ class Test_usher_model extends Testee_unit_test_case {
     }
 
 
+    public function test__build_cp_url__success()
+    {
+        $url = 'C=example';
+        $expected_result = BASE .AMP .$url;
+        $this->assertIdentical($expected_result, $this->_subject->build_cp_url($url));
+    }
+
+
+    public function test__build_cp_url__invalid_url_fragment()
+    {
+        $this->assertIdentical(BASE, $this->_subject->build_cp_url(''));
+        $this->assertIdentical(BASE, $this->_subject->build_cp_url(100));
+        $this->assertIdentical(BASE, $this->_subject->build_cp_url(new StdClass()));
+        $this->assertIdentical(BASE, $this->_subject->build_cp_url(FALSE));
+    }
+
+
     public function test__get_admin_member_groups__success()
     {
         $db_result  = $this->_get_mock('db_query');
@@ -93,6 +110,53 @@ class Test_usher_model extends Testee_unit_test_case {
     
         $this->assertIdentical(array(), $this->_subject->get_admin_member_groups());
     }
+
+
+    public function test__get_member_group_settings__success()
+    {
+        $group_id = '10';
+
+        // Not great, as we have to mock the DB result for get_package_settings too.
+        $db_result = $this->_get_mock('db_query');
+        $db_rows = array(array('group_id' => $group_id, 'target_url' => 'here'));
+
+        $this->_ee->db->setReturnReference('get_where', $db_result);
+        $db_result->setReturnValue('num_rows', count($db_rows));
+        $db_result->setReturnValue('result_array', $db_rows);
+
+        // Now to the task in hand.
+        $expected_result = new Usher_member_group_settings($db_rows[0]);
+        $this->assertIdentical($expected_result, $this->_subject->get_member_group_settings($group_id));
+    }
+
+
+    public function test__get_member_group_settings__member_group_not_found()
+    {
+        $group_id = '10';
+
+        // get_package_settings.
+        $db_result = $this->_get_mock('db_query');
+        $db_rows = array(array('group_id' => '20', 'target_url' => 'here'));
+
+        $this->_ee->db->setReturnReference('get_where', $db_result);
+        $db_result->setReturnValue('num_rows', count($db_rows));
+        $db_result->setReturnValue('result_array', $db_rows);
+
+        // Now to the task in hand.
+        $this->assertIdentical(FALSE, $this->_subject->get_member_group_settings($group_id));
+    }
+
+
+    public function test__get_member_group_settings__invalid_group_id()
+    {
+        $this->_ee->db->expectNever('get_where');
+
+        $this->assertIdentical(FALSE, $this->_subject->get_member_group_settings(0));
+        $this->assertIdentical(FALSE, $this->_subject->get_member_group_settings('Invalid'));
+        $this->assertIdentical(FALSE, $this->_subject->get_member_group_settings(new StdClass()));
+        $this->assertIdentical(FALSE, $this->_subject->get_member_group_settings(TRUE));
+    }
+
 
     public function test__get_package_name__success()
     {
@@ -169,7 +233,7 @@ class Test_usher_model extends Testee_unit_test_case {
             array('group_id' => '30', 'target_url' => 'c')
         );
 
-        $input->expectOnce('post', array('usher_redirects', TRUE));
+        $input->expectOnce('post', array('usher_settings', TRUE));
         $input->setReturnValue('post', $post_settings);
 
         $expected_result = array();
@@ -237,6 +301,7 @@ class Test_usher_model extends Testee_unit_test_case {
 		$this->_ee->config->expectOnce('item', array('theme_folder_url'));
 		$this->_ee->config->setReturnValue('item', $config_theme_url, array('theme_folder_url'));
 
+		// Run the tests.
 		$this->assertIdentical($return_theme_url, $this->_subject->get_package_theme_url());
 	}
 		
@@ -439,4 +504,4 @@ class Test_usher_model extends Testee_unit_test_case {
 
 
 /* End of file      : test.usher_model.php */
-/* File location    : third_party/usher/tests/test.usher_model.php */
+/* File ulocation    : third_party/usher/tests/test.usher_model.php */

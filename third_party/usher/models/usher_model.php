@@ -41,6 +41,21 @@ class Usher_model extends CI_Model {
         $this->_package_version = $package_version ? $package_version : '0.1.0';
         $this->_extension_class = ucfirst($this->_package_name) .'_ext';
 	}
+
+
+    /**
+     * Builds a full Control Panel URL, given the target URL fragment.
+     *
+     * @access  public
+     * @param   string        $url_fragment        The target URL fragment.
+     * @return  string
+     */
+    public function build_cp_url($url_fragment)
+    {
+        return ( ! is_string($url_fragment) OR $url_fragment == '')
+            ? BASE
+            : BASE .AMP .$url_fragment;
+    }
 	
 	
 	/**
@@ -73,6 +88,34 @@ class Usher_model extends CI_Model {
 
         return $this->_admin_member_groups;
 	}
+
+
+    /**
+     * Returns the setting for the specified member group.
+     *
+     * @access  public
+     * @param   int|string        $group_id        The member group ID.
+     * @return  Usher_member_group_settings|FALSE
+     */
+    public function get_member_group_settings($group_id)
+    {
+        if ( ! valid_int($group_id, 1))
+        {
+            return FALSE;
+        }
+
+        $settings = $this->get_package_settings();
+
+        foreach ($settings AS $group_settings)
+        {
+            if ($group_settings->get_group_id() == $group_id)
+            {
+                return $group_settings;
+            }
+        }
+
+        return FALSE;
+    }
 	
 	
     /**
@@ -102,14 +145,12 @@ class Usher_model extends CI_Model {
             $db_result = $this->_ee->db->select('group_id, target_url')
                 ->get_where('usher_settings', array('site_id' => $this->get_site_id()));
 
-            if ( ! $db_result->num_rows())
+            if ($db_result->num_rows())
             {
-                return $settings;
-            }
-
-            foreach ($db_result->result_array() AS $db_row)
-            {
-                $settings[] = new Usher_member_group_settings($db_row);
+                foreach ($db_result->result_array() AS $db_row)
+                {
+                    $settings[] = new Usher_member_group_settings($db_row);
+                }
             }
 
             $this->_package_settings = $settings;

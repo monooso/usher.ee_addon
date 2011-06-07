@@ -9,7 +9,9 @@
 
 class Mock_usher_model {
 
+    public function build_cp_url($url_fragment) {}
     public function get_admin_member_groups() {}
+    public function get_member_group_settings($group_id) {}
     public function get_package_name() {}
     public function get_package_settings() {}
     public function get_package_settings_from_post_data() {}

@@ -63,6 +63,54 @@ class Test_usher_ext extends Testee_unit_test_case {
     }
 
 
+    public function test__on_cp_member_login__success()
+    {
+        $group_id               = '10';
+        $group_settings         = new Usher_member_group_settings(array('group_id' => $group_id, 'target_url' => 'target_url'));
+        $member_data            = new StdClass();
+        $member_data->group_id  = $group_id;
+        $target_url             = 'http://example.com/target_url/';
+
+        $this->_model->expectOnce('get_member_group_settings', array($group_id));
+        $this->_model->setReturnValue('get_member_group_settings', $group_settings);
+
+        // Redirect.
+        $this->_model->expectOnce('build_cp_url', array($group_settings->get_target_url()));
+        $this->_model->setReturnValue('build_cp_url', $target_url);
+        $this->_ee->functions->expectOnce('redirect', array($target_url));
+    
+        $this->_subject->on_cp_member_login($member_data);
+    }
+
+
+    public function test__on_cp_member_login__missing_member_data()
+    {
+        $member_data = new StdClass();
+
+        $this->_model->expectNever('get_member_group_settings');
+        $this->_model->expectNever('build_cp_url');
+        $this->_ee->functions->expectNever('redirect');
+    
+        $this->_subject->on_cp_member_login($member_data);
+    }
+
+
+    public function test__on_cp_member_login__member_group_not_found()
+    {
+        $group_id               = '10';
+        $member_data            = new StdClass();
+        $member_data->group_id  = $group_id;
+
+        $this->_model->expectOnce('get_member_group_settings', array($group_id));
+        $this->_model->setReturnValue('get_member_group_settings', FALSE);
+
+        $this->_model->expectNever('build_cp_url');
+        $this->_ee->functions->expectNever('redirect');
+    
+        $this->_subject->on_cp_member_login($member_data);
+    }
+
+
     public function test__save_settings__success()
     {
         // Retrieve the settings from the POST data.
