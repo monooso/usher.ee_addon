@@ -1,9 +1,9 @@
 /**
  * Add and delete 'rows' to any container element.
  *
- * @author		Stephen Lewis (http://github.com/experience/)
- * @copyright   Experience Internet
- * @version     1.1.0
+ * @author		    Stephen Lewis (http://github.com/experience/)
+ * @copyright       Experience Internet
+ * @version         1.1.0
  */
 
 (function($) {

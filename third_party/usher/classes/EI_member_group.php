@@ -4,6 +4,7 @@
  * Member Group datatype.
  *
  * @author          Stephen Lewis (http://github.com/experience/)
+ * @copyright       Experience Internet
  * @package         EI
  */
 

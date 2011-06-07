@@ -3,8 +3,9 @@
 /**
  * Redirect members to a specific CP URL after login.
  *
- * @author		Stephen Lewis (http://github.com/experience/)
- * @package		Usher
+ * @author		    Stephen Lewis (http://github.com/experience/)
+ * @copyright       Experience Internet
+ * @package		    Usher
  */
 
 class Usher_ext {

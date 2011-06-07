@@ -4,6 +4,7 @@
  * Mock Usher_model class.
  *
  * @author		    Stephen Lewis (http://github.com/experience/)
+ * @copyright       Experience Internet
  * @package		    Usher
  */
 

@@ -3,9 +3,9 @@
 /**
  * Helpful number functions.
  *
- * @author		Stephen Lewis <stephen@experienceinternet.co.uk>
- * @copyright	Experience Internet
- * @package		EI
+ * @author		    Stephen Lewis (http://github.com/experience/)
+ * @copyright	    Experience Internet
+ * @package		    EI
  */
 
 if ( ! function_exists('valid_float'))

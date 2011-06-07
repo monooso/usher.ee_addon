@@ -4,6 +4,7 @@
  * Usher member group settings tests.
  *
  * @author          Stephen Lewis (http://github.com/experience/)
+ * @copyright       Experience Internet
  * @package         Usher
  */
 
