@@ -159,6 +159,64 @@ class Test_usher_model extends Testee_unit_test_case {
     }
 
 
+    public function test__get_package_settings_from_post_data__success()
+    {
+        $input = $this->_ee->input;
+
+        $post_settings = array(
+            array('group_id' => '10', 'target_url' => 'a'),
+            array('group_id' => '20', 'target_url' => 'b'),
+            array('group_id' => '30', 'target_url' => 'c')
+        );
+
+        $input->expectOnce('post', array('usher_redirects', TRUE));
+        $input->setReturnValue('post', $post_settings);
+
+        $expected_result = array();
+        foreach ($post_settings AS $group_setting)
+        {
+            $expected_result[] = new Usher_member_group_settings($group_setting);
+        }
+    
+        $actual_result = $this->_subject->get_package_settings_from_post_data();
+
+        $this->assertIdentical(count($expected_result), count($actual_result));
+        for ($count = 0; $count < count($expected_result); $count++)
+        {
+            $this->assertIdentical($expected_result[$count], $actual_result[$count]);
+        }
+    }
+
+
+    public function test__get_package_settings_from_post_data__no_post_data()
+    {
+        $this->_ee->input->setReturnValue('post', FALSE);
+        $this->assertIdentical(array(), $this->_subject->get_package_settings_from_post_data());
+    }
+
+
+    public function test__get_package_settings_from_post_data__invalid_group_id()
+    {
+        $this->_ee->input->setReturnValue(
+            'post',
+            array(array('group_id' => '0', 'target_url' => 'a'))
+        );
+    
+        $this->assertIdentical(array(), $this->_subject->get_package_settings_from_post_data());
+    }
+
+
+    public function test__get_package_settings_from_post_data__invalid_target_url()
+    {
+        $this->_ee->input->setReturnValue(
+            'post',
+            array(array('group_id' => '10', 'target_url' => ''))
+        );
+    
+        $this->assertIdentical(array(), $this->_subject->get_package_settings_from_post_data());
+    }
+
+
     public function test__get_package_version__success()
     {
         $this->assertIdentical($this->_package_version, $this->_subject->get_package_version());

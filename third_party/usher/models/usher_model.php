@@ -120,6 +120,37 @@ class Usher_model extends CI_Model {
 
 
     /**
+     * Retrieves the package settings from the POST data.
+     *
+     * @access  public
+     * @return  array
+     */
+    public function get_package_settings_from_post_data()
+    {
+        $settings = array();
+
+        if ( ! $input_settings = $this->_ee->input->post('usher_redirects', TRUE))
+        {
+            return $settings;
+        }
+
+        foreach ($input_settings AS $group_settings)
+        {
+            $temp_settings = new Usher_member_group_settings($group_settings);
+
+            if ( ! $temp_settings->get_group_id() OR ! $temp_settings->get_target_url())
+            {
+                continue;
+            }
+
+            $settings[] = new Usher_member_group_settings($group_settings);
+        }
+
+        return $settings;
+    }
+	
+	
+    /**
      * Returns the package version.
      *
      * @access  public
@@ -280,42 +311,8 @@ class Usher_model extends CI_Model {
             array('class'   => $this->_extension_class)
         );
     }
-	
-	
 
-	/* --------------------------------------------------------------
-	 * PRIVATE METHODS
-	 * ------------------------------------------------------------ */
-	
-	/**
-	 * Updates the settings from the input.
-	 *
-	 * @access	private
-	 * @return	void
-	 */
-	private function _update_settings_from_input()
-	{
-		$settings = array();
-		
-		if (is_array($this->_ee->input->post('member_groups')))
-		{
-			$default_settings = $this->_get_default_member_group_settings();
-			
-			foreach ($this->_ee->input->post('member_groups') AS $input_group_id => $input_group_settings)
-			{
-				$member_group_settings = array(
-					'member_group_id' 	=> $input_group_id,
-					'redirect_on_login'	=> $input_group_settings['redirect_on_login'],
-					'redirect_url'		=> $input_group_settings['redirect_url']
-				);
-				
-				$settings[$input_group_id] = array_merge($default_settings, $member_group_settings);
-			}
-		}
-		
-		$this->_settings = $settings;
-	}
-	
+
 }
 
 /* End of file		: usher_model.php */
