@@ -28,10 +28,10 @@ class Usher_ext {
 	 * Class constructor.
 	 *
 	 * @access	public
-	 * @param	array 		$settings		Previously-saved extension settings.
+	 * @param	mixed 	    $settings		Previously-saved extension settings.
 	 * @return	void
 	 */
-	public function __construct(Array $settings = array())
+	public function __construct($settings = array())
 	{
 		$this->_ee =& get_instance();
 		$this->_ee->load->add_package_path(PATH_THIRD .'usher/');
