@@ -6,7 +6,7 @@
  * @author		    Stephen Lewis (http://github.com/experience/)
  * @copyright       Experience Internet
  * @package		    Usher
- * @version		    1.0.0
+ * @version		    1.0.1
  */
 
 require_once PATH_THIRD .'usher/classes/EI_member_group' .EXT;
@@ -39,7 +39,7 @@ class Usher_model extends CI_Model {
 	{
 		$this->_ee              =& get_instance();
         $this->_package_name    = $package_name ? strtolower($package_name) : 'usher';
-        $this->_package_version = $package_version ? $package_version : '1.0.0';
+        $this->_package_version = $package_version ? $package_version : '1.0.1';
         $this->_extension_class = ucfirst($this->_package_name) .'_ext';
 	}
 
